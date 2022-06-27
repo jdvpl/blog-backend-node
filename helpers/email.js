@@ -14,11 +14,11 @@ const emailRegister=async(datos={})=>{
   });
   // Infor de correo
   const info=await transport.sendMail({
-    from:'"Uptasks -Administrador de proyectos" <jdvpl@uptasks.com>',
+    from:'"BlogApp -Administrador de proyectos" <jdvpl@BlogApp.com>',
     to:email,
-    subject:'Confirmacion de tu cuenta - Uptasks',
-    text:'Confirmacion de tu cuenta- Uptasks',
-    html:`<p>Hola <b>${name}</b>, confirma tu cuenta en UPTASKS</p>
+    subject:'Confirmacion de tu cuenta - BlogApp',
+    text:'Confirmacion de tu cuenta- BlogApp',
+    html:`<p>Hola <b>${name}</b>, confirma tu cuenta en BlogApp</p>
     <p>Tu cuenta esta ya casi lista, solo debes comprobarla en el siguiente enlace <a href="${process.env.F1_URL}/confirm/${token}">Confirmar cuenta</a></p>
 
     <p>Si tu no creaste esta cuenta, puede ignorar el mensaje.</p>
@@ -38,10 +38,10 @@ const emailPassword=async(datos={})=>{
   });
   // Infor de correo
   const info=await transport.sendMail({
-    from:'"Uptasks -Administrador de proyectos" <jdvpl@uptasks.com>',
+    from:'"BlogApp -Administrador de proyectos" <jdvpl@BlogApp.com>',
     to:email,
-    subject:'Resstblece tu contraseña - Uptasks',
-    text:'Resstblece tu contraseña- Uptasks',
+    subject:'Resstblece tu contraseña - BlogApp',
+    text:'Resstblece tu contraseña- BlogApp',
     html:`<p>Hola <b>${name}</b>, has solicitado actualizar tu contraseña</p>
     <p>Sigue el siguiente enlace para generar una nueva contraseña<a href="${process.env.F1_URL}/forget-password/${token}">Actualizar contraseña</a></p>
 
@@ -62,7 +62,7 @@ const addingCollaborator=async(datos={})=>{
   });
   // Infor de correo
   const info=await transport.sendMail({
-    from:'"Uptasks -Administrador de proyectos" <jdvpl@uptasks.com>',
+    from:'"BlogApp -Administrador de proyectos" <jdvpl@BlogApp.com>',
     to:email,
     subject:`${messageSubject} ${projectName}`,
     text:`${messageText}`,
@@ -86,7 +86,7 @@ const sendEmailTask=async(datos={})=>{
   });
   // Infor de correo
   const info=await transport.sendMail({
-    from:'"Uptasks -Administrador de proyectos" <jdvpl@uptasks.com>',
+    from:'"BlogApp -Administrador de proyectos" <jdvpl@BlogApp.com>',
     to:email,
     subject:`${messageSubject}`,
     text:`${messageText}`,

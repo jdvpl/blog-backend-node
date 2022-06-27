@@ -15,14 +15,14 @@ const existeCorreo=async(email='')=>{
     // verificar si el correo existe
     const existsEmail=await Usuario.findOne({email});
     if (existsEmail){
-      throw new Error(`El Correo ${email} ya existe`);
+      throw new Error(`The email ${email} already exists.`);
     }
 }
 const noExisteCorreo=async(email='')=>{
     // verificar si el correo existe
     const noExistsEmail=await Usuario.findOne({email});
     if (!noExistsEmail){
-      throw new Error(`El Correo ${email} no existe`);
+      throw new Error(`The email ${email} does not exist.`);
     }
 }
 const existeID=async(id='')=>{

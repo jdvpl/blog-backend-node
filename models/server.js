@@ -77,6 +77,7 @@ class Server{
     this.app.use(express.json())
 
 
+
   }
 }
 

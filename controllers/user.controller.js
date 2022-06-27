@@ -2,70 +2,94 @@ const {response}=require('express');
 const {emailRegister,emailPassword} = require('../helpers/email');
 const { generateToken } = require('../helpers/generateToken');
 const User= require('../models/user/User');
+const bcryptjs=require('bcryptjs');
+const { generarJWT } = require('../helpers/generate-jwt');
 
+// get all user confirmed
 const getUsersConfirmed=async(req, res=response) => {
 
-  const estado={status:true}
+  const active={active:true}
   const {limite=5, desde=0}=req.query;
-
-
-  const [total,usuarios]=await Promise.all([
-    User.countDocuments(estado),
-    User.find(estado)
+  const [total,users]=await Promise.all([
+    User.countDocuments(active),
+    User.find(active)
       .skip(Number(desde))
       .limit(Number(limite))
   ])
-  return res.json({total,limite,desde,usuarios});
+  return res.json({total,limite,desde, users});
 }
+// /get all users not confirmed
 const usersNoConfirmed=async(req, res=response) => {
-
-  const estado={status:false}
+  const active={active :false}
   const {limite=5, desde=0}=req.query;
-
-
   const [total,usuarios]=await Promise.all([
-    User.countDocuments(estado),
-    User.find(estado)
+    User.countDocuments(active),
+    User.find(active)
       .skip(Number(desde))
       .limit(Number(limite))
   ])
   return res.json({total,limite,desde,usuarios});
 }
+// update user
 
 const userPut=async(req, res=response) => {
   const id=req.params.id;
   const {_id,password,email, ...resto}=req.body;
   //  validar con la base de datos
-
   if(password){
     const salt=bcrypt.genSaltSync();
     resto.password=bcrypt.hashSync(password,salt);
   }
-
   const usuario=await User.findByIdAndUpdate(id, resto)
   res.json(
     usuario
     );
 }
+// new user
 const registerUser=async(req, res) => {
-
-  const {name,email,password}=req.body;
-  const user=new User({name,email,password})
+  const {firstName,lastName,email,password}=req.body;
+  const user=new User({firstName,lastName,email,password})
   user.token=generateToken();
-
   try {
     // guardar en la base de datos
     await user.save()
     // send email to confirm user
     const emailRegisterData={
       email: email,
-      name: name,
+      name: firstName,
       token: user.token
     }
     emailRegister(emailRegisterData)
     return res.status(202).json({msg: 'Usuario creado correctamente, revisa tu correo para confirmar tu cuenta.'});
   } catch (error) {
     return res.status(500).json({msg:error.message});
+  }
+}
+const login=async(req, res)=>{
+  const {email,password}=req.body;
+
+  try {
+    // verificar si el correo existe
+    const user=await User.findOne({ email}).select('-token -role -createdAt -updatedAt');
+  
+    // verificar si el usaurio esta activo
+    // if(!user.active){
+    //   return res.status(400).json({msg: 'Este usuario aun no esta activo'})
+    // }
+ 
+    // verificar la contraseña
+    const validPassword=bcryptjs.compareSync(password, user.password);
+
+    if(!validPassword){
+      return res.status(400).json({
+        msg: 'Invalid Password'
+      })
+    }
+    // generar el JWT
+    const token=await generarJWT(user.id);
+    return res.json({user,token})
+  } catch (error) {
+    return res.status(500).json({msg: `Hubo un error al loguearse ${error.message}`})
   }
 }
 const userDelete=async(req, res) => {
@@ -162,5 +186,6 @@ module.exports ={
   confirmAccount,
   forgotPassword,
   updatePasswordToken,
-  updatePassword
+  updatePassword,
+  login
 }
