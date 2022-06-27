@@ -6,30 +6,18 @@ const bcryptjs=require('bcryptjs');
 const { generarJWT } = require('../helpers/generate-jwt');
 
 // get all user confirmed
-const getUsersConfirmed=async(req, res=response) => {
+const getAllUsers=async(req, res=response) => {
 
-  const active={active:true}
-  const {limite=5, desde=0}=req.query;
+  const {limite=30, desde=0}=req.query;
   const [total,users]=await Promise.all([
-    User.countDocuments(active),
-    User.find(active)
+    User.countDocuments(),
+    User.find()
       .skip(Number(desde))
       .limit(Number(limite))
   ])
   return res.json({total,limite,desde, users});
 }
-// /get all users not confirmed
-const usersNoConfirmed=async(req, res=response) => {
-  const active={active :false}
-  const {limite=5, desde=0}=req.query;
-  const [total,usuarios]=await Promise.all([
-    User.countDocuments(active),
-    User.find(active)
-      .skip(Number(desde))
-      .limit(Number(limite))
-  ])
-  return res.json({total,limite,desde,usuarios});
-}
+
 // update user
 
 const userPut=async(req, res=response) => {
@@ -70,24 +58,18 @@ const login=async(req, res)=>{
 
   try {
     // verificar si el correo existe
-    const user=await User.findOne({ email}).select('-token -role -createdAt -updatedAt');
-  
-    // verificar si el usaurio esta activo
-    // if(!user.active){
-    //   return res.status(400).json({msg: 'Este usuario aun no esta activo'})
-    // }
- 
+    const user=await User.findOne({ email}); 
     // verificar la contraseña
     const validPassword=bcryptjs.compareSync(password, user.password);
 
     if(!validPassword){
-      return res.status(400).json({
+      return res.status(404).json({
         msg: 'Invalid Password'
       })
     }
     // generar el JWT
     const token=await generarJWT(user.id);
-    return res.json({user,token})
+    return res.json({id:user.id,firstName:user.firstName,lastName:user.lastName,email:user.email,profilePhoto:user.profilePhoto,isAdmin:user.isAdmin,token})
   } catch (error) {
     return res.status(500).json({msg: `Hubo un error al loguearse ${error.message}`})
   }
@@ -178,8 +160,7 @@ const updatePassword=async(req,res)=>{
 
 
 module.exports ={
-  getUsersConfirmed,
-  usersNoConfirmed,
+  getAllUsers,
   userPut,
   registerUser,
   userDelete,
