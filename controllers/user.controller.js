@@ -28,7 +28,7 @@ const userPut=async(req, res=response) => {
     const salt=bcrypt.genSaltSync();
     resto.password=bcrypt.hashSync(password,salt);
   }
-  const usuario=await User.findByIdAndUpdate(id, resto)
+  const usuario=await User.findByIdAndUpdate(id, resto);
   res.json(
     usuario
     );
@@ -79,11 +79,17 @@ const userDelete=async(req, res) => {
 
   // /boarrar fisicamente no recomendable
   // const usuario =await User.findByIdAndDelete(id)
-  const usuario =await User.findByIdAndUpdate(id,{ status:false})
+
+  try {
+    const userdeleted =await User.findByIdAndDelete(id)
 
   res.json(
-    usuario
+    userdeleted
     );
+  } catch (error) {
+    
+  }
+  
 }
 
 const confirmAccount=async(req,res) => {

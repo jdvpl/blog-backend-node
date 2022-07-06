@@ -31,6 +31,15 @@ router.post('/register', [
 // get all users confirmed
 router.get('/get-all',getAllUsers);
 
+router.delete('/:id', 
+  [
+    check('id', "No es un id valido").isMongoId(),
+    check('id').custom(existeID),
+    validarCampos
+  ],
+userDelete);
+
+
 router.get('/confirm/:token',confirmAccount);
 
 router.get('/forget-password/:token',updatePasswordToken);
@@ -65,14 +74,7 @@ userPut);
 
 
 
-router.delete('/:id', 
-  [
-    validarJWT,
-    check('id', "No es un id valido").isMongoId(),
-    check('id').custom(existeID),
-    validarCampos
-  ],
-userDelete);
+
 
 
 module.exports =router;
