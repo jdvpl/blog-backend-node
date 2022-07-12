@@ -1,6 +1,6 @@
 const {Router}=require('express');
 const { check } = require('express-validator');
-const { login, userPut, registerUser, userDelete, getAllUsers,  confirmAccount, forgotPassword, updatePasswordToken, updatePassword, getUserById, profile, followingUser } = require('../controllers/user.controller');
+const { login, userPut, registerUser, userDelete, getAllUsers,  confirmAccount, forgotPassword, updatePasswordToken, updatePassword, getUserById, profile, followingUser, UnfollowUser } = require('../controllers/user.controller');
 const { esRoleValido,existeCorreo,existeID, noExisteCorreo } = require('../helpers/db-validators');
 const { checkAuth } = require('../middlewares/check-auth');
 const { validarCampos } = require('../middlewares/validar-campos');
@@ -66,10 +66,18 @@ router.put('/password',[
 router.put('/follow',[
   checkAuth,
   check('idToFollow', "the id to follow is required").not().isEmpty(),
-  check('idToFollow', "No es un id valido").isMongoId(),
+  check('idToFollow', "Invalid mongo ID").isMongoId(),
   check('idToFollow').custom(existeID),
   validarCampos
 ],followingUser);
+// follow user
+router.put('/unfollow',[
+  checkAuth,
+  check('idToUnFollow', "the id to unfollow is required").not().isEmpty(),
+  check('idToUnFollow', "No es un id valido").isMongoId(),
+  check('idToUnFollow').custom(existeID),
+  validarCampos
+],UnfollowUser);
 
 // update user
 router.put('/:id',

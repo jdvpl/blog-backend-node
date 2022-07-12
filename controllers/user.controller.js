@@ -143,13 +143,39 @@ const followingUser=async(req, res=response) => {
     }
     // // push into the list of the followers
     await User.findByIdAndUpdate(idToFollow,{
-      $push:{followers:id}
+      $push:{followers:id},
+      isFollowing:true,
+    },{
+      new:true,
     });
     // a
     await User.findByIdAndUpdate(id,{
       $push:{following:idToFollow}
+    },{
+      new:true,
     })
-    res.json({msg: "You have successfully followed ths user"});
+    res.json({msg: "You have successfully followed this user"});
+  } catch (error) {
+    return res.status(500).json({msg: error.message});
+  }
+}
+// unfollowing user
+const UnfollowUser=async(req, res=response) => {
+  const {idToUnFollow}=req.body;
+  const {id}=req.user;
+  //  validar con la base de datos
+  try {
+
+    // // push into the list of the followers
+    await User.findByIdAndUpdate(idToUnFollow,{
+      $pull:{followers:id},
+      isFollowing:false,
+    },{new:true});
+    // a
+    await User.findByIdAndUpdate(id,{
+      $pull:{following:idToUnFollow}
+    },{new:true})
+    res.json({msg: "You have successfully unfollowed this user"});
   } catch (error) {
     return res.status(500).json({msg: error.message});
   }
@@ -227,4 +253,5 @@ module.exports ={
   getUserById,
   profile,
   followingUser,
+  UnfollowUser,
 }
