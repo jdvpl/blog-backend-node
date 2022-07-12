@@ -1,6 +1,6 @@
 const {Router}=require('express');
 const { check } = require('express-validator');
-const { login, userPut, registerUser, userDelete, getAllUsers,  confirmAccount, forgotPassword, updatePasswordToken, updatePassword, getUserById, profile } = require('../controllers/user.controller');
+const { login, userPut, registerUser, userDelete, getAllUsers,  confirmAccount, forgotPassword, updatePasswordToken, updatePassword, getUserById, profile, followingUser } = require('../controllers/user.controller');
 const { esRoleValido,existeCorreo,existeID, noExisteCorreo } = require('../helpers/db-validators');
 const { checkAuth } = require('../middlewares/check-auth');
 const { validarCampos } = require('../middlewares/validar-campos');
@@ -53,6 +53,24 @@ router.get('/get-user/:id',
 getUserById);
 // get user by token
 router.get('/profile',checkAuth,profile);
+
+// update password
+router.put('/password',[
+  checkAuth,
+  check('id', "No es un id valido").isMongoId(),
+  check('id').custom(existeID),
+  validarCampos
+], updatePassword);
+
+// follow user
+router.put('/follow',[
+  checkAuth,
+  check('idToFollow', "the id to follow is required").not().isEmpty(),
+  check('idToFollow', "No es un id valido").isMongoId(),
+  check('idToFollow').custom(existeID),
+  validarCampos
+],followingUser);
+
 // update user
 router.put('/:id',
 [
@@ -62,17 +80,6 @@ router.put('/:id',
   validarCampos
 ],
   userPut);
-// update password
-router.put('/password/:id',[
-  checkAuth,
-  check('id', "No es un id valido").isMongoId(),
-  check('id').custom(existeID),
-  validarCampos
-], updatePassword);
-
-
-
-
 
 
 

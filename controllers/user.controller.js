@@ -95,6 +95,86 @@ const userDelete=async(req, res) => {
   
 }
 
+// updated password
+const updatePassword=async(req,res)=>{
+  const {id}=req.user;
+  console.log(req.user)
+  const {password} =req.body;
+
+  const user=await User.findById(id);
+
+  try {
+    user.password=password;
+    await user.save()
+    return res.status(200).json({msg:`The user password was successfully updated.`})
+  } catch (error) {
+    return res.status(500).json({msg: error.message});
+  }
+}
+
+
+// update user
+const userPut=async(req, res=response) => {
+  const {id}=req.user;
+  const {_id,password, ...resto}=req.body;
+  //  validar con la base de datos
+  try {
+    const user=await User.findByIdAndUpdate(id, resto,{new:true, runValidators:true});
+    res.json(user);
+  } catch (error) {
+    return res.status(500).json({msg: error.message});
+  }
+}
+// following user
+const followingUser=async(req, res=response) => {
+  const {idToFollow}=req.body;
+  const {id}=req.user;
+  //  validar con la base de datos
+  try {
+
+    const userFollowed = await User.findById(idToFollow);
+    const myUser = await User.findById(id);
+
+    if(userFollowed.followers.includes(id)){
+      return res.status(404).json({msg:'You are already following this user'})
+    }
+    if(myUser.following.includes(idToFollow)){
+      return res.status(404).json({msg:'This user is already following this user'})
+    }
+    // // push into the list of the followers
+    await User.findByIdAndUpdate(idToFollow,{
+      $push:{followers:id}
+    });
+    // a
+    await User.findByIdAndUpdate(id,{
+      $push:{following:idToFollow}
+    })
+    res.json({msg: "You have successfully followed ths user"});
+  } catch (error) {
+    return res.status(500).json({msg: error.message});
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const confirmAccount=async(req,res) => {
   const {token} = req.params;
   const usuarioConfirmado=await User.findOne({token});
@@ -130,38 +210,9 @@ const forgotPassword=async(req,res)=>{
   }
 }
 
-// updated password
-const updatePassword=async(req,res)=>{
-  const {id}=req.user;
-  console.log(req.user)
-  const {password} =req.body;
 
-  const user=await User.findById(id);
 
-  try {
-    user.password=password;
-    await user.save()
-    return res.status(200).json({msg:`The user password was successfully updated.`})
-  } catch (error) {
-    return res.status(500).json({msg: error.message});
-  }
-}
 
-// update user
-
-const userPut=async(req, res=response) => {
-  const {id}=req.user;
-  const {_id,password, ...resto}=req.body;
-  //  validar con la base de datos
-  try {
-    const user=await User.findByIdAndUpdate(id, resto,{new:true, runValidators:true});
-    res.json(user);
-  } catch (error) {
-    return res.status(500).json({msg: error.message});
-  }
-
-  
-}
 
 
 module.exports ={
@@ -174,5 +225,6 @@ module.exports ={
   updatePassword,
   login,
   getUserById,
-  profile
+  profile,
+  followingUser,
 }

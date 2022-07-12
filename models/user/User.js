@@ -80,6 +80,14 @@ const UserSchema=Schema({
       }
     ],
   },
+  following:{
+    type:[
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+      }
+    ],
+  },
   passwordChangedAt:{
     type:Date,
   },
