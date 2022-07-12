@@ -130,36 +130,18 @@ const forgotPassword=async(req,res)=>{
   }
 }
 
-
-const updatePasswordToken=async(req,res)=>{
-  const {token}=req.params;
-  const tokenvalido=await User.findOne({token});
-  if(!tokenvalido){
-    return res.status(404).json({msg: `El token ${token} no es valido.`})
-  }
-  try {
-    return res.status(202).json({msg: `Usuario valido`})
-  } catch (error) {
-    return res.status(500).json({msg: error.message});
-  }
-  
-}
-
-
+// updated password
 const updatePassword=async(req,res)=>{
-  const {token}=req.params;
+  const {id}=req.user;
+  console.log(req.user)
   const {password} =req.body;
 
-  const usuario=await User.findOne({token});
-  if(!usuario){
-    return res.status(403).json({msg: `El token ${token} no es valido.`})
-  }
+  const user=await User.findById(id);
 
   try {
-    usuario.password=password;
-    usuario.token='';
-    await usuario.save()
-    return res.status(200).json({msg:`Haz actualizado el password correctamente`})
+    user.password=password;
+    await user.save()
+    return res.status(200).json({msg:`The user password was successfully updated.`})
   } catch (error) {
     return res.status(500).json({msg: error.message});
   }
@@ -189,7 +171,6 @@ module.exports ={
   userDelete,
   confirmAccount,
   forgotPassword,
-  updatePasswordToken,
   updatePassword,
   login,
   getUserById,

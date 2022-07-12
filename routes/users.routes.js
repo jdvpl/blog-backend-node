@@ -30,7 +30,7 @@ router.post('/register', [
 
 
 // get all users 
-router.get('/get-all',getAllUsers);
+router.get('/get-all',checkAuth,getAllUsers);
 
 // /delete user
 router.delete('/:id', 
@@ -62,6 +62,13 @@ router.put('/:id',
   validarCampos
 ],
   userPut);
+// update password
+router.put('/password/:id',[
+  checkAuth,
+  check('id', "No es un id valido").isMongoId(),
+  check('id').custom(existeID),
+  validarCampos
+], updatePassword);
 
 
 
