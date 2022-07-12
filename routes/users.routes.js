@@ -1,7 +1,8 @@
 const {Router}=require('express');
 const { check } = require('express-validator');
-const { login, userPut, registerUser, userDelete, getAllUsers,  confirmAccount, forgotPassword, updatePasswordToken, updatePassword } = require('../controllers/user.controller');
+const { login, userPut, registerUser, userDelete, getAllUsers,  confirmAccount, forgotPassword, updatePasswordToken, updatePassword, getUserById, profile } = require('../controllers/user.controller');
 const { esRoleValido,existeCorreo,existeID, noExisteCorreo } = require('../helpers/db-validators');
+const { checkAuth } = require('../middlewares/check-auth');
 const { validarCampos } = require('../middlewares/validar-campos');
 const { validarJWT } = require('../middlewares/validar-jwt');
 
@@ -28,49 +29,42 @@ router.post('/register', [
 ],registerUser);
 
 
-// get all users confirmed
+// get all users 
 router.get('/get-all',getAllUsers);
 
+// /delete user
 router.delete('/:id', 
   [
+    checkAuth,
     check('id', "No es un id valido").isMongoId(),
     check('id').custom(existeID),
     validarCampos
   ],
 userDelete);
 
-
-router.get('/confirm/:token',confirmAccount);
-
-router.get('/forget-password/:token',updatePasswordToken);
-
-router.post('/forget-password/:token',
-
+// get user by id
+router.get('/get-user/:id',
 [
-  check('password','La contraseña debe tener minimo 6 caracteres').isLength({ min: 6}),
+  checkAuth,
+  check('id', "No es un id valido").isMongoId(),
+  check('id').custom(existeID),
   validarCampos
-]
-
-,updatePassword);
-
-
-router.post('/forgotpassword',
-[
-  check('email','Correo no valido').isEmail(),
-  check('email').custom(noExisteCorreo),
-  validarCampos
-]
-  ,forgotPassword);
-
+],
+getUserById);
+// get user by token
+router.get('/profile',checkAuth,profile);
+// update user
 router.put('/:id',
-  [
-    check('id', "No es un id valido").isMongoId(),
-    check('id').custom(existeID),
-    check('role').custom(esRoleValido ),
+[
+  checkAuth,
+  check('id', "No es un id valido").isMongoId(),
+  check('id').custom(existeID),
+  validarCampos
+],
+  userPut);
 
-    validarCampos,
-  ],
-userPut);
+
+
 
 
 

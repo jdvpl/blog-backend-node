@@ -17,22 +17,25 @@ const getAllUsers=async(req, res=response) => {
   ])
   return res.json({total,limite,desde, users});
 }
-
-// update user
-
-const userPut=async(req, res=response) => {
-  const id=req.params.id;
-  const {_id,password,email, ...resto}=req.body;
-  //  validar con la base de datos
-  if(password){
-    const salt=bcrypt.genSaltSync();
-    resto.password=bcrypt.hashSync(password,salt);
+// get all user confirmed
+const getUserById=async(req, res=response) => {
+  const {id} = req.params;
+  try {
+  const user=await User.findById(id)
+  return res.json(user);
+  } catch (error) {
+    return res.status(500).json({msg: error.message});
   }
-  const usuario=await User.findByIdAndUpdate(id, resto);
-  res.json(
-    usuario
-    );
+  
 }
+
+const profile=async(req, res)=>{
+  console.log(req)
+  const {user}=req;
+  res.json(user)
+}
+
+
 // new user
 const registerUser=async(req, res) => {
   const {firstName,lastName,email,password}=req.body;
@@ -160,8 +163,22 @@ const updatePassword=async(req,res)=>{
   } catch (error) {
     return res.status(500).json({msg: error.message});
   }
+}
 
+// update user
 
+const userPut=async(req, res=response) => {
+  const {id}=req.user;
+  const {_id,password, ...resto}=req.body;
+  //  validar con la base de datos
+  try {
+    const user=await User.findByIdAndUpdate(id, resto,{new:true, runValidators:true});
+    res.json(user);
+  } catch (error) {
+    return res.status(500).json({msg: error.message});
+  }
+
+  
 }
 
 
@@ -174,5 +191,7 @@ module.exports ={
   forgotPassword,
   updatePasswordToken,
   updatePassword,
-  login
+  login,
+  getUserById,
+  profile
 }
