@@ -1,8 +1,9 @@
 const {Router}=require('express');
 const { check } = require('express-validator');
-const { login, userPut, registerUser, userDelete, getAllUsers,  confirmAccount, forgotPassword, updatePasswordToken, updatePassword, getUserById, profile, followingUser, UnfollowUser } = require('../controllers/user.controller');
+const { login, userPut, registerUser, userDelete, getAllUsers,  confirmAccount, forgotPassword, updatePasswordToken, updatePassword, getUserById, profile, followingUser, UnfollowUser, blockUser, UnblockUser } = require('../controllers/user.controller');
 const { esRoleValido,existeCorreo,existeID, noExisteCorreo } = require('../helpers/db-validators');
 const { checkAuth } = require('../middlewares/check-auth');
+const { isAdmin } = require('../middlewares/isAdmin');
 const { validarCampos } = require('../middlewares/validar-campos');
 const { validarJWT } = require('../middlewares/validar-jwt');
 
@@ -36,7 +37,7 @@ router.get('/get-all',checkAuth,getAllUsers);
 router.delete('/:id', 
   [
     checkAuth,
-    check('id', "No es un id valido").isMongoId(),
+    check('id', "Invalid Id").isMongoId(),
     check('id').custom(existeID),
     validarCampos
   ],
@@ -46,7 +47,7 @@ userDelete);
 router.get('/get-user/:id',
 [
   checkAuth,
-  check('id', "No es un id valido").isMongoId(),
+  check('id', "Invalid Id").isMongoId(),
   check('id').custom(existeID),
   validarCampos
 ],
@@ -57,7 +58,7 @@ router.get('/profile',checkAuth,profile);
 // update password
 router.put('/password',[
   checkAuth,
-  check('id', "No es un id valido").isMongoId(),
+  check('id', "Invalid Id").isMongoId(),
   check('id').custom(existeID),
   validarCampos
 ], updatePassword);
@@ -66,7 +67,7 @@ router.put('/password',[
 router.put('/follow',[
   checkAuth,
   check('idToFollow', "the id to follow is required").not().isEmpty(),
-  check('idToFollow', "Invalid mongo ID").isMongoId(),
+  check('idToFollow', "Invalid Id").isMongoId(),
   check('idToFollow').custom(existeID),
   validarCampos
 ],followingUser);
@@ -74,16 +75,32 @@ router.put('/follow',[
 router.put('/unfollow',[
   checkAuth,
   check('idToUnFollow', "the id to unfollow is required").not().isEmpty(),
-  check('idToUnFollow', "No es un id valido").isMongoId(),
+  check('idToUnFollow', "Invalid Id").isMongoId(),
   check('idToUnFollow').custom(existeID),
   validarCampos
 ],UnfollowUser);
+// block user
+router.put('/block-user/:id',[
+  checkAuth,
+  isAdmin,
+  check('id', "Invalid id").isMongoId(),
+  check('id').custom(existeID),
+  validarCampos
+],blockUser);
+// unblock user
+router.put('/unblock-user/:id',[
+  checkAuth,
+  isAdmin,
+  check('id', "Invalid id").isMongoId(),
+  check('id').custom(existeID),
+  validarCampos
+],UnblockUser);
 
 // update user
 router.put('/:id',
 [
   checkAuth,
-  check('id', "No es un id valido").isMongoId(),
+  check('id', "Invalid Id").isMongoId(),
   check('id').custom(existeID),
   validarCampos
 ],

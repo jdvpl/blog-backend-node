@@ -181,7 +181,32 @@ const UnfollowUser=async(req, res=response) => {
   }
 }
 
+// block user
 
+const blockUser = async(req, res) => {
+  const {id}=req.params;
+  
+  try {
+    const user =await User.findByIdAndUpdate(id,{isBlocked:true},{new:true});
+    res.json(user)
+    
+  } catch (error) {
+    res.status(404).json({msg: error.message});
+  }
+}
+// unblock user
+
+const UnblockUser = async(req, res) => {
+  const {id}=req.params;
+  
+  try {
+    const user =await User.findByIdAndUpdate(id,{isBlocked:false},{new:true});
+    res.json(user)
+    
+  } catch (error) {
+    res.status(404).json({msg: error.message});
+  }
+}
 
 
 
@@ -254,4 +279,6 @@ module.exports ={
   profile,
   followingUser,
   UnfollowUser,
+  blockUser,
+  UnblockUser,
 }
