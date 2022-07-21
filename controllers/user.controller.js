@@ -30,7 +30,6 @@ const getUserById=async(req, res=response) => {
 }
 
 const profile=async(req, res)=>{
-  console.log(req)
   const {user}=req;
   res.json(user)
 }
